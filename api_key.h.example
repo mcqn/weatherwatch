@@ -1,0 +1,7 @@
+// You need to get an API key for using the Met Office Datapoint service
+// Go to http://www.metoffice.gov.uk/datapoint/support/API to find your
+// API key.  The first time you'll need to follow the link to register for
+// an account first
+
+// Once you've got your API key, copy it here, replacing the YOUR_API_KEY text
+#define APIKEY "YOUR_API_KEY"
