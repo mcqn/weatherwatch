@@ -10,6 +10,7 @@
 #include <HttpClient.h>
 #include <Ethernet.h>
 #include <EthernetClient.h>
+#include <Servo.h>
 #include "api_key.h"
 
 // Name of the server we want to connect to
@@ -33,7 +34,11 @@ const int kLEDone = 2;
 const int kLEDtwo = 3;
 const int kLEDthree = A0;
 const int kLEDfour = A5;
-const int kLEDfive = 6;
+const int kLEDfive = 5;
+
+const int kServoPin = 6;
+
+Servo myServo;
 
 int windSpeed = 0;
 int temperature = 0;
@@ -53,6 +58,8 @@ void setup()
   pinMode(kLEDthree, OUTPUT);
   pinMode(kLEDfour, OUTPUT);
   pinMode(kLEDfive, OUTPUT);
+  
+  myServo.attach(kServoPin);
   
   // Test the circuit is wired up right
   int testGap = 100;
@@ -217,6 +224,11 @@ void loop()
 void temperatureToServo()
 {
   // FIXME
+  // Servo runs between 0 and 170 degrees
+  // temperature ranges from 0 to 35
+  // Map the temperature onto the right servo position
+  int pos = map(temperature, 0, 35, 0, 170);
+  myServo.write(pos);
 }
 
 void chanceOfRainToLEDs()
