@@ -16,8 +16,12 @@
 const char kHostname[] = "datapoint.metoffice.gov.uk";
 // Path to download (this is the bit after the hostname in the URL
 // that you want to download
-const char kPath[] = "/public/data/val/wxfcs/all/json/310012?res=3hourly&key=" APIKEY;
+// FIXME Explain how to find the right weather station ID
+const char kPath[] = "/public/data/val/wxfcs/all/json/310012?res=3hourly&key=" APIKEY;  // Central Liverpool
+// FIXME another weather station - Cornwall, Skye?
+//const char kPath[] = "/public/data/val/wxfcs/all/json/INSERT_WEATHER_STATION_ID_HERE?res=3hourly&key=" APIKEY;
 
+// This needs to be unique on your local network (so if you have more than one Shrimp/Arduino then they need to be different for each one)
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
 // Number of milliseconds to wait without receiving any data before we give up
@@ -25,12 +29,48 @@ const int kNetworkTimeout = 30*1000;
 // Number of milliseconds to wait if no data is available before trying again
 const int kNetworkDelay = 1000;
 
+const int kLEDone = 2;
+const int kLEDtwo = 3;
+const int kLEDthree = 4;
+const int kLEDfour = 5;
+const int kLEDfive = 6;
+
+int windSpeed = 0;
+int temperature = 0;
+int chanceOfRain = 0;
+int weatherType = 0;
+
 void setup()
 {
   // initialize serial communications at 9600 bps:
   Serial.begin(9600); 
   Serial.println("Hello!");
   Serial.println("Getting ready to watch the weather.");
+
+  // Set up lights to show chance of rain
+  pinMode(kLEDone, OUTPUT);
+  pinMode(kLEDtwo, OUTPUT);
+  pinMode(kLEDthree, OUTPUT);
+  pinMode(kLEDfour, OUTPUT);
+  pinMode(kLEDfive, OUTPUT);
+  
+  // Test the circuit is wired up right
+  int testGap = 100;
+  digitalWrite(kLEDone, HIGH);
+  delay(testGap);
+  digitalWrite(kLEDone, LOW);
+  digitalWrite(kLEDtwo, HIGH);
+  delay(testGap);
+  digitalWrite(kLEDtwo, LOW);
+  digitalWrite(kLEDthree, HIGH);
+  delay(testGap);
+  digitalWrite(kLEDthree, LOW);
+  digitalWrite(kLEDfour, HIGH);
+  delay(testGap);
+  digitalWrite(kLEDfour, LOW);
+  digitalWrite(kLEDfive, HIGH);
+  delay(testGap);
+  digitalWrite(kLEDfive, LOW);
 
   // Set up the networking, so we can talk to the Internet
   while (Ethernet.begin(mac) != 1)
@@ -69,23 +109,31 @@ void loop()
           {
             // We've got the first "% chance of rain" reading
             // Read in the value for it
-            int chanceOfRain = http.parseInt();
+            chanceOfRain = http.parseInt();
             Serial.print("Chance of rain: ");
             Serial.println(chanceOfRain);
             // Now look for the wind speed
             if (http.find("S"))
             {
               // Found it
-              int windSpeed = http.parseInt();
+              windSpeed = http.parseInt();
               Serial.print("    Wind speed: ");
               Serial.println(windSpeed);
               // And now the temperature
               if (http.find("T"))
               {
                 // Got it
-                int temperature = http.parseInt();
+                temperature = http.parseInt();
                 Serial.print("   Temperature: ");
                 Serial.println(temperature);
+                // Finally look for the weather type
+                if (http.find("W"))
+                {
+                  // And we have it
+                  weatherType = http.parseInt();
+                  Serial.print("Weather Type: ");
+                  Serial.println(weatherType);
+                }
               }
             }
           }
@@ -153,8 +201,52 @@ void loop()
   }
   http.stop();
 
+  // Update the weather
+  temperatureToServo();
+  chanceOfRainToLEDs();
+
   // And wait for a bit before checking the forecast again
   delay(10000);
 }
 
+void temperatureToServo()
+{
+  // FIXME
+}
+
+void chanceOfRainToLEDs()
+{
+  if (chanceOfRain > 20)
+  {
+    digitalWrite(kLEDone, HIGH);
+  }
+  else
+  {
+    digitalWrite(kLEDone, LOW);
+  }
+  if (chanceOfRain > 40)
+  {
+    digitalWrite(kLEDtwo, HIGH);
+  }
+  else
+  {
+    digitalWrite(kLEDtwo, LOW);
+  }
+  if (chanceOfRain > 60)
+  {
+    digitalWrite(kLEDthree, HIGH);
+  }
+  else
+  {
+    digitalWrite(kLEDthree, LOW);
+  }
+  if (chanceOfRain > 80)
+  {
+    digitalWrite(kLEDfour, HIGH);
+  }
+  else
+  {
+    digitalWrite(kLEDfour, LOW);
+  }
+}
 
