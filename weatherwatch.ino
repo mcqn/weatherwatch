@@ -31,8 +31,8 @@ const int kNetworkDelay = 1000;
 
 const int kLEDone = 2;
 const int kLEDtwo = 3;
-const int kLEDthree = 4;
-const int kLEDfour = 5;
+const int kLEDthree = A0;
+const int kLEDfour = A5;
 const int kLEDfive = 6;
 
 int windSpeed = 0;
@@ -56,15 +56,20 @@ void setup()
   
   // Test the circuit is wired up right
   int testGap = 100;
+  Serial.println("Testing LEDs...");
+  Serial.println("One");
   digitalWrite(kLEDone, HIGH);
   delay(testGap);
   digitalWrite(kLEDone, LOW);
+  Serial.println("Two");
   digitalWrite(kLEDtwo, HIGH);
   delay(testGap);
   digitalWrite(kLEDtwo, LOW);
+  Serial.println("Three");
   digitalWrite(kLEDthree, HIGH);
   delay(testGap);
   digitalWrite(kLEDthree, LOW);
+  Serial.println("Four");
   digitalWrite(kLEDfour, HIGH);
   delay(testGap);
   digitalWrite(kLEDfour, LOW);
