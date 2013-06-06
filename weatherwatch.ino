@@ -101,8 +101,8 @@ void loop()
   // At the moment it will display the % chance of rain on the LEDs.  If you'd
   // rather it displays what sort of weather (sunny/overcast/rainy/snowy/etc.)
   // then comment out the next line and uncomment the one after
-  chanceOfRainToLEDs();
-  //weatherTypeToLEDs();
+  //chanceOfRainToLEDs();
+  weatherTypeToLEDs();
 
   // And wait for a bit before checking the forecast again
   delay(10000);
@@ -164,6 +164,7 @@ void testCircuit()
     delay(20);
   }
   myServo.write(90);
+  Serial.println();
 }
 
 
@@ -172,12 +173,14 @@ void testCircuit()
  */
 void setupEthernet()
 { 
+  Serial.print("Configuring Ethernet...");
   // Set up the networking, so we can talk to the Internet
   while (Ethernet.begin(mac) != 1)
   {
     Serial.println("Error getting IP address via DHCP, trying again...");
     delay(15000);
   }  
+  Serial.println("online!");
 }
 
 
@@ -326,7 +329,25 @@ void temperatureToServo()
   // Servo runs between 0 and 170 degrees
   // temperature ranges from 0 to 35
   // Map the temperature onto the right servo position
-  int pos = map(temperature, 0, 35, 0, 170);
+  // If it's less than 10 degrees, that's cold
+  int pos;
+  temperature = 35;
+  if (temperature < 10)
+  {
+    // It's cold, show the cold person
+    pos = map(temperature, -2, 10, 0, 80);
+  }
+  else if (temperature > 15)
+  {
+    // It's hot, show the hot person
+    pos = map(temperature, 15, 35, 90, 170);
+  }
+  else
+  {
+    // It's neither hot nor cold, have them both show equally
+    pos = 85;
+  }
+  // Now we know what position the servo should be in, move it there
   myServo.write(pos);
 }
 
